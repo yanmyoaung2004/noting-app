@@ -36,7 +36,8 @@ export function ShareUserList({ users, onRemoveUser, onUpdatePermission }) {
             <div>
               <div className="font-medium flex items-center gap-2">
                 {user.user.username}
-                {user.pending && (
+
+                {user.status === "PENDING" && (
                   <span className="text-xs bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded">
                     Pending
                   </span>

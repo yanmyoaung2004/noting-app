@@ -17,35 +17,12 @@ import { Copy, Check, Link, Globe, Lock } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import axios from "axios";
 
-// Sample users for demonstration
-const sampleUsers = [
-  {
-    id: "1",
-    name: "Alex Johnson",
-    email: "alex@example.com",
-    avatar: "/placeholder.svg?height=32&width=32",
-  },
-  {
-    id: "2",
-    name: "Sam Wilson",
-    email: "sam@example.com",
-    avatar: "/placeholder.svg?height=32&width=32",
-  },
-  {
-    id: "3",
-    name: "Taylor Kim",
-    email: "taylor@example.com",
-    avatar: "/placeholder.svg?height=32&width=32",
-  },
-];
-
 export function ShareDialog({ isOpen, onClose, note, onUpdateSharing }) {
   const baseURL = import.meta.env.VITE_API_URL;
   const [shareLink, setShareLink] = useState(`${baseURL}/s/${note.shareToken}`);
   const [linkCopied, setLinkCopied] = useState(false);
   const [accessLevel, setAccessLevel] = useState(note.accessLevel || "private");
   const [sharedUsers, setSharedUsers] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
   const [invitePermission, setInvitePermission] = useState("view");
   const [linkGenerated, setLinkGenerated] = useState(
@@ -74,13 +51,6 @@ export function ShareDialog({ isOpen, onClose, note, onUpdateSharing }) {
     fetchSharedUsers();
   }, [note]);
 
-  // Filter users based on search query
-  const filteredUsers = sampleUsers.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareLink);
     setLinkCopied(true);
@@ -89,19 +59,6 @@ export function ShareDialog({ isOpen, onClose, note, onUpdateSharing }) {
 
   const handleAccessLevelChange = (value) => {
     setAccessLevel(value);
-    console.log(value);
-  };
-
-  const handleAddUser = (user, permission = "view") => {
-    if (!sharedUsers.some((u) => u.id === user.id)) {
-      const updatedUsers = [...sharedUsers, { ...user, permission }];
-      setSharedUsers(updatedUsers);
-      onUpdateSharing({
-        ...note,
-        accessLevel,
-        sharedUsers: updatedUsers,
-      });
-    }
   };
 
   const handleRemoveUser = async (permissionId) => {
@@ -188,7 +145,6 @@ export function ShareDialog({ isOpen, onClose, note, onUpdateSharing }) {
       console.log("User is not authenticated!");
     }
     if (userData.email === trimmedEmail) {
-      console.log("You cannot invite yourself!");
       setError("You cannot invite yourself!");
       return;
     }
@@ -224,6 +180,7 @@ export function ShareDialog({ isOpen, onClose, note, onUpdateSharing }) {
           "Content-Type": "application/json",
         },
       });
+
       if (response.status === 200) {
         setSharedUsers(response.data.sharedUsers);
         setError("");
@@ -357,38 +314,6 @@ export function ShareDialog({ isOpen, onClose, note, onUpdateSharing }) {
               {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
             </div>
 
-            {searchQuery && filteredUsers.length > 0 && (
-              <div className="border rounded-md p-2 space-y-2 max-h-[150px] overflow-y-auto">
-                {filteredUsers.map((user) => (
-                  <div
-                    key={user.id}
-                    className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md"
-                  >
-                    <div className="flex items-center gap-2">
-                      <img
-                        src={user.avatar || "/placeholder.svg"}
-                        alt={user.name}
-                        className="w-8 h-8 rounded-full"
-                      />
-                      <div>
-                        <div className="font-medium">{user.name}</div>
-                        <div className="text-xs text-gray-500">
-                          {user.email}
-                        </div>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleAddUser(user)}
-                    >
-                      Add
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-
             <div className="space-y-2">
               <Label>People with access</Label>
               <ShareUserList
@@ -442,23 +367,6 @@ export function ShareDialog({ isOpen, onClose, note, onUpdateSharing }) {
                       </div>
                     </Label>
                   </div>
-
-                  {/* Public Option */}
-                  {/* <div className="flex items-center space-x-2 rounded-md border p-3">
-                    <RadioGroupItem value="public" id="public" />
-                    <Label
-                      htmlFor="public"
-                      className="flex items-center gap-2 cursor-pointer"
-                    >
-                      <Globe className="h-4 w-4" />
-                      <div>
-                        <div>Public</div>
-                        <div className="text-xs text-gray-500">
-                          Anyone on the internet can find and view
-                        </div>
-                      </div>
-                    </Label>
-                  </div> */}
                 </RadioGroup>
               </div>
 

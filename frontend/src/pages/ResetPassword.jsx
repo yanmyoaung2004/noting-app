@@ -1,28 +1,28 @@
 "use client";
 
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Alert, AlertDescription } from "../components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 
-function Register() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+function ResetPassword() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { register } = useAuth();
+  const [successMessage, setSuccessMessage] = useState("");
+  const { resetPassword } = useAuth();
   const navigate = useNavigate();
+  const { token } = useParams();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !email || !password || !confirmPassword) {
+    if (!password || !confirmPassword) {
       setError("Please fill in all fields");
       return;
     }
@@ -39,9 +39,16 @@ function Register() {
 
     try {
       setError("");
+      setSuccessMessage("");
       setIsLoading(true);
-      await register(name, email, password);
-      navigate("/login");
+
+      const { message, status } = await resetPassword(token, password);
+      if (status)
+        setSuccessMessage("Your password has been reset successfully");
+      else setError(message);
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -57,7 +64,7 @@ function Register() {
             Notezy
           </h1>
           <h2 className="mt-6 text-center text-2xl font-bold text-gray-900">
-            Create your account
+            Set new password
           </h2>
         </div>
 
@@ -68,37 +75,20 @@ function Register() {
           </Alert>
         )}
 
+        {successMessage && (
+          <Alert className="bg-green-50 border-green-200">
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-700">
+              {successMessage}
+              <p className="mt-2">Redirecting to login page...</p>
+            </AlertDescription>
+          </Alert>
+        )}
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
             <div>
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="email-address">Email address</Label>
-              <Input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">New Password</Label>
               <Input
                 id="password"
                 name="password"
@@ -108,10 +98,11 @@ function Register() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="mt-1"
+                disabled={isLoading || successMessage}
               />
             </div>
             <div>
-              <Label htmlFor="confirm-password">Confirm Password</Label>
+              <Label htmlFor="confirm-password">Confirm New Password</Label>
               <Input
                 id="confirm-password"
                 name="confirmPassword"
@@ -121,19 +112,24 @@ function Register() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="mt-1"
+                disabled={isLoading || successMessage}
               />
             </div>
           </div>
 
           <div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Creating account..." : "Create account"}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading || successMessage}
+            >
+              {isLoading ? "Resetting password..." : "Reset password"}
             </Button>
           </div>
 
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              Already have an account?{" "}
+              Remember your password?{" "}
               <Link
                 to="/login"
                 className="font-medium text-blue-600 hover:text-blue-500"
@@ -148,4 +144,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default ResetPassword;

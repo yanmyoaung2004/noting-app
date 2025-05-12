@@ -112,11 +112,86 @@ export function AuthProvider({ children }) {
     });
   };
 
+  // Forgot password function
+  const forgotPassword = async (email) => {
+    try {
+      const res = await axios.post("/auth/forgot-password", {
+        email: email,
+      });
+      if (res.status === 200) {
+        return { message: res.data, status: true };
+      }
+    } catch (error) {
+      return { message: error.response.data.message, status: false };
+    }
+  };
+
+  // Reset password function
+  const resetPassword = async (token, newPassword) => {
+    try {
+      const res = await axios.post("auth/reset-password", {
+        password: newPassword,
+        token: token,
+      });
+      console.log(res);
+      if (res.status === 200) {
+        return { message: res.data, status: true };
+      }
+    } catch (error) {
+      console.log("error");
+      return { message: error.response.data.message, status: false };
+    }
+  };
+
   // Logout function
   const logout = () => {
     setCurrentUser(null);
     localStorage.removeItem("currentUser");
     navigate("/login");
+  };
+
+  const updateProfile = (profileData) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        try {
+          // Find the user in the sample users array
+          const userIndex = sampleUsers.findIndex(
+            (user) => user.id === currentUser.id
+          );
+
+          if (userIndex === -1) {
+            reject(new Error("User not found"));
+            return;
+          }
+
+          // Update the user data
+          const updatedUser = {
+            ...sampleUsers[userIndex],
+            name: profileData.name,
+            email: profileData.email,
+            avatar: profileData.avatar,
+            bio: profileData.bio,
+          };
+
+          // Update the sample users array
+          sampleUsers[userIndex] = updatedUser;
+
+          // Remove password from user object before storing
+          const { password, ...userWithoutPassword } = updatedUser;
+
+          // Update current user and localStorage
+          setCurrentUser(userWithoutPassword);
+          localStorage.setItem(
+            "currentUser",
+            JSON.stringify(userWithoutPassword)
+          );
+
+          resolve(userWithoutPassword);
+        } catch (error) {
+          reject(new Error("Failed to update profile"));
+        }
+      }, 1000);
+    });
   };
 
   const value = {
@@ -125,6 +200,9 @@ export function AuthProvider({ children }) {
     register,
     logout,
     loading,
+    forgotPassword,
+    resetPassword,
+    updateProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

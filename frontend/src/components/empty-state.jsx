@@ -1,6 +1,6 @@
-"use client"
-import { Button } from "./ui/button"
-import { FileText, Plus } from "lucide-react"
+"use client";
+import { Button } from "./ui/button";
+import { FileText, Plus } from "lucide-react";
 
 export function EmptyState({ onCreateNote }) {
   return (
@@ -9,11 +9,13 @@ export function EmptyState({ onCreateNote }) {
         <FileText className="h-12 w-12 text-gray-400" />
       </div>
       <h2 className="text-2xl font-bold mb-2">No notes yet</h2>
-      <p className="text-gray-500 mb-6 max-w-md">Create your first note to get started with NotionLite.</p>
+      <p className="text-gray-500 mb-6 max-w-md">
+        Create your first note to get started with Notezy.
+      </p>
       <Button onClick={onCreateNote}>
         <Plus className="h-4 w-4 mr-2" />
         Create New Note
       </Button>
     </div>
-  )
+  );
 }

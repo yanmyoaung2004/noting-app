@@ -1,47 +1,39 @@
 "use client";
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Alert, AlertDescription } from "../components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 
-function Register() {
-  const [name, setName] = useState("");
+function ForgotPassword() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { register } = useAuth();
-  const navigate = useNavigate();
+  const [successMessage, setSuccessMessage] = useState("");
+  const { forgotPassword } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !email || !password || !confirmPassword) {
-      setError("Please fill in all fields");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+    if (!email) {
+      setError("Please enter your email address");
       return;
     }
 
     try {
       setError("");
+      setSuccessMessage("");
       setIsLoading(true);
-      await register(name, email, password);
-      navigate("/login");
+      const { message, status } = await forgotPassword(email);
+      if (status)
+        setSuccessMessage(
+          "Password reset link has been sent to your email address"
+        );
+      else setError(message);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -57,8 +49,12 @@ function Register() {
             Notezy
           </h1>
           <h2 className="mt-6 text-center text-2xl font-bold text-gray-900">
-            Create your account
+            Reset your password
           </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Enter your email address and we'll send you a link to reset your
+            password
+          </p>
         </div>
 
         {error && (
@@ -68,21 +64,17 @@ function Register() {
           </Alert>
         )}
 
+        {successMessage && (
+          <Alert className="bg-green-50 border-green-200">
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-700">
+              {successMessage}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
-            <div>
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="mt-1"
-              />
-            </div>
             <div>
               <Label htmlFor="email-address">Email address</Label>
               <Input
@@ -96,44 +88,17 @@ function Register() {
                 className="mt-1"
               />
             </div>
-
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="confirm-password">Confirm Password</Label>
-              <Input
-                id="confirm-password"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="mt-1"
-              />
-            </div>
           </div>
 
           <div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Creating account..." : "Create account"}
+              {isLoading ? "Sending reset link..." : "Send reset link"}
             </Button>
           </div>
 
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              Already have an account?{" "}
+              Remember your password?{" "}
               <Link
                 to="/login"
                 className="font-medium text-blue-600 hover:text-blue-500"
@@ -148,4 +113,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default ForgotPassword;

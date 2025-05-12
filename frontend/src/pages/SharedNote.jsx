@@ -104,7 +104,7 @@ function SharedNote() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="flex items-center justify-between h-14 px-6 border-b bg-white">
-        <div className="font-semibold text-lg">NotionLite</div>
+        <div className="font-semibold text-lg">Notezy</div>
         <Button asChild variant="ghost" size="sm">
           <Link to={currentUser ? "/" : "/login"}>
             <ArrowLeft className="h-4 w-4 mr-2" />

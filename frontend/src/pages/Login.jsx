@@ -42,7 +42,7 @@ function Login() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h1 className="text-center text-3xl font-extrabold text-gray-900">
-            NotionLite
+            Notezy
           </h1>
           <h2 className="mt-6 text-center text-2xl font-bold text-gray-900">
             Sign in to your account
@@ -72,7 +72,15 @@ function Login() {
               />
             </div>
             <div>
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <Link
+                  to="/forgot-password"
+                  className="text-sm font-medium text-blue-600 hover:text-blue-500"
+                >
+                  Forgot your password?
+                </Link>
+              </div>
               <Input
                 id="password"
                 name="password"
@@ -104,12 +112,6 @@ function Login() {
             </p>
           </div>
         </form>
-
-        <div className="mt-4 text-center">
-          <p className="text-xs text-gray-500">
-            Demo credentials: demo@example.com / password123
-          </p>
-        </div>
       </div>
     </div>
   );
